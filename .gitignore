@@ -5,6 +5,7 @@ benchmark/_data/
 benchmark/_packages/
 benchmark/_results/
 benchmark/_embeddings/
+*/_results backup
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
