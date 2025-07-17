@@ -23,6 +23,8 @@ python _packages/TissueMosaic/run/main_1_train_ssl.py \
 	--config $training_config_file \
 	--data_folder "_data/$DATASET/sample_ads"
 
+mkdir -p "_data/$DATASET/sample_ads_featurized" 
+
 # Model inference: passing all patches through model to obtain low-dimensional representations
 python _packages/TissueMosaic/run/main_2_featurize.py \
         --anndata_in "_data/$DATASET/sample_ads"  \
