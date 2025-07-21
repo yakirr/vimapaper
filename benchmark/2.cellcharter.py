@@ -46,7 +46,7 @@ def run_cellcharter(dsetname):
         early_stopping_kwargs = {
             "early_stopping_metric": "val_unweighted_loss",
             "threshold": 0,
-            "patience": 20,
+            "patience": 2,
             "reduce_lr": True,
             "lr_patience": 13,
             "lr_factor": 0.1,
@@ -67,7 +67,7 @@ def run_cellcharter(dsetname):
 
         trvae.train(
             n_epochs=trvae_epochs,
-            alpha_epoch_anneal=200,
+            alpha_epoch_anneal=trvae_epochs,
             early_stopping_kwargs=early_stopping_kwargs
         )
 
