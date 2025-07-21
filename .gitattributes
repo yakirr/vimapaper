@@ -2,3 +2,7 @@ RA/_results/models.pt filter=lfs diff=lfs merge=lfs -text
 RA/_results/cc_fstar.h5ad filter=lfs diff=lfs merge=lfs -text
 RA/_results/fingerprints.pkl filter=lfs diff=lfs merge=lfs -text
 RA/_results/fingerprints_singlemodel.h5ad filter=lfs diff=lfs merge=lfs -text
+UC/_results/fingerprints.pkl filter=lfs diff=lfs merge=lfs -text
+ALZ/_results/models.pt filter=lfs diff=lfs merge=lfs -text
+ALZ/_results/fingerprints.pkl filter=lfs diff=lfs merge=lfs -text
+UC/_results/models.pt filter=lfs diff=lfs merge=lfs -text
