@@ -170,3 +170,4 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 RA/RA.4.scratch.ipynb
+ALZ/_results/fingerprints.pkl
