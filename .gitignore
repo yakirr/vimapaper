@@ -7,6 +7,7 @@ benchmark/_results/
 benchmark/_embeddings/
 ablation/_models/
 */_results backup
+*unused*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
