@@ -6,7 +6,8 @@ benchmark/_packages/
 benchmark/_results/
 benchmark/_embeddings/
 ablation/_models/
-*/_results backup
+*/_results*
+*/_models*
 *unused*.ipynb
 
 # Byte-compiled / optimized / DLL files
