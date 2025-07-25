@@ -10,4 +10,7 @@ methodnames = {'vima':'VIMA',
                 'utag':'UTAG',
                 'tissuemosaic':'TissueMosaic',
                 'cellcharter':'CellCharter',
+                'cluster':'2-layer ConvNet, Clustering',
+                'vima-nocvae-noresnet':'2-layer ConvNet, Microniches',
+                'vima-nosid':'ResNet AE, no cVAE',
                 }

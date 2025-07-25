@@ -29,6 +29,7 @@ def write_perplexities(dsetname, ds, outpath):
         data.append(v)
         labels.extend([k] * len(v))
     perplexities = pd.DataFrame({'perplexity': np.concatenate(data), 'method': labels})
+    perplexities['dset'] = dsetname
     perplexities.to_csv(outpath, index=False)
     print(perplexities.groupby('method').describe())
 
