@@ -33,49 +33,56 @@ def write_perplexities(dsetname, ds, outpath):
     perplexities.to_csv(outpath, index=False)
     print(perplexities.groupby('method').describe())
 
-def collate_cc(dsetname, D=None, outpath=None):
+def collate_cc(dsetname, suffix='', D=None, outpath=None):
     results = []
     for f in glob.glob(f'../benchmark/_results/{dsetname}*_noharm.h5ad'):
         method = os.path.basename(f).split('_')[1]
+        print(method, 'noharm')
         d = sc.read_h5ad(f)
-        results.append({'method': method,
-                        'microniche':False,
-                        'harmonized':False,
-                        'bonferroni':False,
-                        'p': d.uns['clustercc_globalp'],
-                        'npos': d.uns['clustercc_npos'],
-                        'nneg': d.uns['clustercc_nneg'],
-                        'ntotal': len(d)
-                        })
-        results.append({'method': method,
-                        'microniche':True,
-                        'harmonized':False,
-                        'bonferroni':False,
-                        'p': d.uns['mncc_p'],
-                        'npos': d.uns['mncc_npos'],
-                        'nneg': d.uns['mncc_nneg'],
-                        'ntotal': len(d)
-                        })
-        results.append({'method': method,
-                        'microniche':False,
-                        'harmonized':False,
-                        'bonferroni':True,
-                        'p': min(d.uns['clustercc_minp'], 1),
-                        'npos': np.nan,
-                        'nneg': np.nan,
-                        'ntotal': len(d)
-                        })
+
+        if f'clustercc{suffix}_globalp' in d.uns.keys():
+            results.append({'method': method,
+                            'microniche':False,
+                            'harmonized':False,
+                            'bonferroni':False,
+                            'p': d.uns[f'clustercc{suffix}_globalp'],
+                            'npos': d.uns[f'clustercc{suffix}_npos'],
+                            'nneg': d.uns[f'clustercc{suffix}_nneg'],
+                            'ntotal': len(d)
+                            })
+        if f'mncc{suffix}_p' in d.uns.keys():
+            results.append({'method': method,
+                            'microniche':True,
+                            'harmonized':False,
+                            'bonferroni':False,
+                            'p': d.uns[f'mncc{suffix}_p'],
+                            'npos': d.uns[f'mncc{suffix}_npos'],
+                            'nneg': d.uns[f'mncc{suffix}_nneg'],
+                            'ntotal': len(d)
+                            })
+        if f'clustercc{suffix}_minp' in d.uns.keys():
+            results.append({'method': method,
+                            'microniche':False,
+                            'harmonized':False,
+                            'bonferroni':True,
+                            'p': min(d.uns[f'clustercc{suffix}_minp'], 1),
+                            'npos': np.nan,
+                            'nneg': np.nan,
+                            'ntotal': len(d)
+                            })
         
-        for f in glob.glob(f'_results/{dsetname}*_harm.h5ad'):
-            method = os.path.basename(f).split('_')[1]
-            d = sc.read_h5ad(f)
+    for f in glob.glob(f'_results/{dsetname}*_harm.h5ad'):
+        method = os.path.basename(f).split('_')[1]
+        print(method, 'harm')
+        d = sc.read_h5ad(f)
+        if f'clustercc{suffix}_globalp' in d.uns.keys():
             results.append({'method': method,
                             'microniche':False,
                             'harmonized':True,
                             'bonferroni':False,
-                            'p': d.uns['clustercc_globalp'],
-                            'npos': d.uns['clustercc_npos'],
-                            'nneg': d.uns['clustercc_nneg'],
+                            'p': d.uns[f'clustercc{suffix}_globalp'],
+                            'npos': d.uns[f'clustercc{suffix}_npos'],
+                            'nneg': d.uns[f'clustercc{suffix}_nneg'],
                             'ntotal': len(d)
                             })
 
