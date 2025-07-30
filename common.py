@@ -66,12 +66,12 @@ def collate_cc(dsetname, suffix='', D=None, outpath=None):
                             'harmonized':False,
                             'bonferroni':True,
                             'p': min(d.uns[f'clustercc{suffix}_minp'], 1),
-                            'npos': np.nan,
-                            'nneg': np.nan,
+                            'npos': d.uns[f'clustercc{suffix}_npos'],
+                            'nneg': d.uns[f'clustercc{suffix}_nneg'],
                             'ntotal': len(d)
                             })
         
-    for f in glob.glob(f'_results/{dsetname}*_harm.h5ad'):
+    for f in glob.glob(f'../benchmark/_results/{dsetname}*_harm.h5ad'):
         method = os.path.basename(f).split('_')[1]
         print(method, 'harm')
         d = sc.read_h5ad(f)
@@ -83,6 +83,26 @@ def collate_cc(dsetname, suffix='', D=None, outpath=None):
                             'p': d.uns[f'clustercc{suffix}_globalp'],
                             'npos': d.uns[f'clustercc{suffix}_npos'],
                             'nneg': d.uns[f'clustercc{suffix}_nneg'],
+                            'ntotal': len(d)
+                            })
+        if f'clustercc{suffix}_minp' in d.uns.keys():
+            results.append({'method': method,
+                            'microniche':False,
+                            'harmonized':True,
+                            'bonferroni':True,
+                            'p': min(d.uns[f'clustercc{suffix}_minp'], 1),
+                            'npos': d.uns[f'clustercc{suffix}_npos'],
+                            'nneg': d.uns[f'clustercc{suffix}_nneg'],
+                            'ntotal': len(d)
+                            })
+        if f'mncc{suffix}_p' in d.uns.keys():
+            results.append({'method': method,
+                            'microniche':True,
+                            'harmonized':True,
+                            'bonferroni':False,
+                            'p': d.uns[f'mncc{suffix}_p'],
+                            'npos': d.uns[f'mncc{suffix}_npos'],
+                            'nneg': d.uns[f'mncc{suffix}_nneg'],
                             'ntotal': len(d)
                             })
 
@@ -99,7 +119,7 @@ def collate_cc(dsetname, suffix='', D=None, outpath=None):
     results['frac_neg'] = results.nneg / results.ntotal
     results.sort_values('p', inplace=True)
     mainresults = results[
-        ~(results.microniche==True) & ~(results.harmonized==True) & ~(results.bonferroni==True)
+        ~(results.microniche==True) & ~(results.harmonized==True) & ~(results.bonferroni==False)
         ][['p','npos','nneg','ntotal','frac_pos','frac_neg']]
 
     if outpath is not None:
