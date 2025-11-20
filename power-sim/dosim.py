@@ -6,10 +6,11 @@ import os, pickle, torch
 import tqdm
 import vima
 import argparse
+import gc
 
 # basic setup
 # torch.set_default_device('mps') # edit as appropriate to hardware
-vima.set_seed(0) # for reproducibility
+torch.set_default_device('cuda') # edit as appropriate to hardware
 print("Basic setup complete (vima seed set).")
 os.makedirs(f'./_results', exist_ok=True)
 mnsize = 400
@@ -18,22 +19,24 @@ pixelsize = 10
 #arguments
 parser = argparse.ArgumentParser(description='Run dosim simulation')
 parser.add_argument('--ncase', type=int, default=40, help='number of case microniches')
-parser.add_argument('--ratio', type=int, default=2, help='ratio of #case/#control microniches')
+parser.add_argument('--ratio', type=float, default=2, help='ratio of #case/#control microniches')
 parser.add_argument('--datamask', type=str, default='../../ALZ/alz-data/10u/pca_k=10_harmony/*.nc', help='glob path to data')
 parser.add_argument('--samplemeta', type=str, default='../../ALZ/alz-data/sea-ad_cohort_donor_metadata_encoded_20240924.tsv', help='path to sample metadata TSV (Donor ID as index)')
 parser.add_argument('--seed', type=int, default=0, help='random seed')
+parser.add_argument('--caseonly', action='store_true', help='if set, spike signal into case samples only (default: False)')
 args = parser.parse_args()
 ncase = args.ncase
 ratio = args.ratio
 seed = args.seed
-outname = f'ratio{ratio:.2f}_ncase{ncase}_seed{seed}'
+caseonly = args.caseonly
+outname = f'ratio{ratio:.2f}_ncase{ncase}_seed{seed}{"_caseonly" if caseonly else ""}'
 
 print("Parsed arguments.")
 print(args)
 print(outname)
 
 # read in samples
-samples = vima.read_samples(args.datamask, vima.default_parser)
+samples = vima.read_samples(args.datamask, vima.default_parser)#, stop_after=10)
 print(f"Read {len(samples)} samples from datamask: {args.datamask}")
 
 # read in sample metadata
@@ -51,6 +54,7 @@ filtered_sids = pd.merge(samplemeta, sid_to_donor, left_index=True, right_on='do
                         ).drop_duplicates(subset='donor', keep='first').index
 filtered_sids = filtered_sids[sid_to_donor.loc[filtered_sids,'npatches'] >= 100]
 filtered_samples = {s.sid: s for s in samples.values() if s.sid in filtered_sids}
+del samples; gc.collect()
 print(f"Filtered samples to {len(filtered_samples)} donors with >=100 patches")
 
 # choose patch to use as microniche signal
@@ -87,7 +91,12 @@ samplemeta = pd.DataFrame(columns=['sid','case'])
 for s in tqdm.tqdm(filtered_samples.values()):
     case = np.random.choice([True, False])
     nmns = int(sid_to_donor.loc[s.sid].npatches) // 100
-    groundtruths[s.sid] = add_signal(s, nmns if case else nmns // ratio)
+    if caseonly:
+        strength = int(np.ceil(nmns * ratio)) if case else 0
+    else:
+        strength = nmns if case else int(nmns / ratio)
+    print(f'case={case}, strength={strength} for sample {s.sid}')
+    groundtruths[s.sid] = add_signal(s, strength)
     samplemeta = pd.concat([
         samplemeta,
         pd.DataFrame({'sid':[s.sid], 'case':[case]})
@@ -105,6 +114,7 @@ print(len(P), 'patches selected for training')
 
 # choose which patches to do case/ctrl analysis on
 Pdense = vima.PatchCollection(samples, max_frac_empty=0.5, sid_nums=P.sid_nums)
+del samples; del filtered_samples; gc.collect()
 print(len(Pdense), 'dense patches selected for case/control analysis')
 
 # add in ground truth info
@@ -135,7 +145,8 @@ print(f"Loaded model from _results/{outname}_model.pt")
 print("Computing latent representations and associations; saving fingerprints and graph")
 ds = vima.latentreps(models, Pdense)
 pickle.dump(ds, open(f'_results/{outname}_fingerprints.pkl', 'wb'))
-p, D = vima.association(ds, samplemeta.case.astype(float), 'sid')
+p, D = vima.association(ds, samplemeta.case.astype(float), 'sid', allow_low_sample_size=True)
 D.write(f'_results/{outname}_D.h5ad')
 
+print('P=', D.uns['vima_p'])
 print('done')

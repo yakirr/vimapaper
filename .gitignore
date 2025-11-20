@@ -9,6 +9,7 @@ ablation/_models/
 */_results*
 */_models*
 *unused*.ipynb
+power-sim/logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
