@@ -175,3 +175,4 @@ cython_debug/
 #.idea/
 RA/RA.4.scratch.ipynb
 ALZ/_results/fingerprints.pkl
+.vscode/settings.json
