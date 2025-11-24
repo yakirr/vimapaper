@@ -1,8 +1,8 @@
 #!/bin/bash
 mkdir -p logs
 
-# for ratio in 0 0.25 0.5 0.75 1
-for ratio in 0.013 0.38
+# for ratio in 0 0.13 0.25 0.38 0.5 0.75 1
+for ratio in 0.13
 do
     echo $ratio
     sbatch --export=RATIO=$ratio,CASEONLY=--caseonly run_sim.sh
