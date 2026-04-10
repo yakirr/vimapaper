@@ -1,0 +1,3 @@
+[submodule "patchrichness-sim"]
+	path = patchrichness-sim
+	url = https://github.com/yakirr/patchrichness-sim
