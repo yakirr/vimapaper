@@ -1,5 +1,10 @@
 import pandas as pd
 
+# to embed text as editable characters rather than low-level vector shapes
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42   # TrueType, not Type 3
+matplotlib.rcParams['ps.fonttype']  = 42   # in case you ever export EPS
+
 fs_axislabel = 10
 fs_figsubpanel = 14
 fs_legend = 8
